@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div>Admin Dashboard</div>
+    <div>Kelas Dashboard</div>
   </div>
 </template>
 

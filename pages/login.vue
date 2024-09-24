@@ -31,13 +31,15 @@ const email = ref('')
 const password = ref('')
 
 const { execute: login, status, error } = useAsyncData('login', async () => {
-  const { data, error } = await supabase.auth.signInWithPassword({
+  const { data: user, error } = await supabase.auth.signInWithPassword({
     email: email.value,
     password: password.value
   })
   if (error) throw "Username atau password salah"
-  if (data) {
-    navigateTo('/admin')
+  if (user) {
+    const { data: userRole, error } = await supabase.from('users').select('role').eq('id', user.user.id).maybeSingle()
+    if (error) throw 'Role user tidak ditemukan'
+    if (userRole) navigateTo(`/${userRole.role}`)
   }
 }, {
   immediate: false
