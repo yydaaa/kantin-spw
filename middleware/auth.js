@@ -16,13 +16,15 @@ export default defineNuxtRouteMiddleware(async (to) => {
 
     // Redirect from login to the appropriate page
     const roleBasedRoutes = {
-      admin: '/admin',
-      kelas: '/kelas'
+      admin: '/dashboard/admin',
+      kelas: '/dashboard/kelas',
+      guru: '/dashboard/guru'
     }
 
     // Restrict access to dashboard based on role
-    if (to.path.startsWith('/admin') && userRole != 'admin') return navigateTo('/login')
-    if (to.path.startsWith('/kelas') && userRole != 'kelas') return navigateTo('/login')
+    if (to.path.startsWith('/dashboard/admin') && userRole != 'admin') return navigateTo('/login')
+    if (to.path.startsWith('/dashboard/kelas') && userRole != 'kelas') return navigateTo('/login')
+    if (to.path.startsWith('/dashboard/guru') && userRole != 'guru') return navigateTo('/login')
     
     if (to.path == '/login') return navigateTo(roleBasedRoutes[userRole] || '/')
   }

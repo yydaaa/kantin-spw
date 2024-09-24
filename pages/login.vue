@@ -1,6 +1,6 @@
 <template>
   <UContainer>
-    <form @submit.prevent.once="login">
+    <form @submit.prevent="login">
       <div class="text-3xl text-center mb-4">Welcome to SPW</div>
       <div class="mb-4">
         <UInput type="email" v-model="email" placeholder="Email" />
@@ -39,7 +39,7 @@ const { execute: login, status, error } = useAsyncData('login', async () => {
   if (user) {
     const { data: userRole, error } = await supabase.from('users').select('role').eq('id', user.user.id).maybeSingle()
     if (error) throw 'Role user tidak ditemukan'
-    if (userRole) navigateTo(`/${userRole.role}`)
+    if (userRole) navigateTo(`/dashboard/${userRole.role}`)
   }
 }, {
   immediate: false
