@@ -1,6 +1,6 @@
 <template>
   <UContainer>
-    <form @submit.prevent.once="login">
+    <form @submit.prevent="login">
       <div class="text-3xl text-center mb-4">Welcome to SPW</div>
       <div class="mb-4">
         <UInput type="email" v-model="email" placeholder="Email" />
@@ -31,13 +31,15 @@ const email = ref('')
 const password = ref('')
 
 const { execute: login, status, error } = useAsyncData('login', async () => {
-  const { data, error } = await supabase.auth.signInWithPassword({
+  const { data: user, error } = await supabase.auth.signInWithPassword({
     email: email.value,
     password: password.value
   })
   if (error) throw "Username atau password salah"
-  if (data) {
-    navigateTo('/admin')
+  if (user) {
+    const { data: userRole, error } = await supabase.from('users').select('role').eq('id', user.user.id).maybeSingle()
+    if (error) throw 'Role user tidak ditemukan'
+    if (userRole) navigateTo(`/dashboard/${userRole.role}`)
   }
 }, {
   immediate: false

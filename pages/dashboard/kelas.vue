@@ -1,12 +1,12 @@
 <template>
   <div>
-    <div>Dashboard</div>
+    <div>Kelas Dashboard</div>
   </div>
 </template>
 
 <script setup>
 definePageMeta({
-  layout: 'admin',
+  layout: 'dashboard',
   middleware: 'auth'
 })
 </script>
