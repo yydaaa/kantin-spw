@@ -36,11 +36,7 @@ const { execute: login, status, error } = useAsyncData('login', async () => {
     password: password.value
   })
   if (error) throw "Username atau password salah"
-  if (user) {
-    const { data: userRole, error } = await supabase.from('users').select('role').eq('id', user.user.id).maybeSingle()
-    if (error) throw 'Role user tidak ditemukan'
-    if (userRole) navigateTo(`/dashboard/${userRole.role}`)
-  }
+  if (user) navigateTo('/dashboard')
 }, {
   immediate: false
 })
