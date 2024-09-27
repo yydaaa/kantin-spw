@@ -3,14 +3,17 @@
     <div class="flex justify-center">
       <UButton @click="navigateTo('/dashboard/kelompok/tambah')">Tambah Kelompok</UButton>
     </div>
-    <div v-if="status == 'success'" class="grid grid-cols-2 lg:grid-cols-6 gap-4">
+    <div v-if="status == 'success'" class="grid grid-cols-2 lg:grid-cols-4 gap-x-10 gap-y-5">
       <div v-for="group in groups">
         <NuxtLink :to="`/dashboard/kelompok/${group.id}`">
           <UCard>
             <template #header>
-              <div>{{ group.nama }}</div>
+              <div class="">{{ group.nama }}</div>
               <div>{{ group.kelas?.nama }}</div>
             </template>
+            <ul class="list-disc ms-4">
+              <li v-for="student in group.siswa">{{ student?.nama }}</li>
+            </ul>
           </UCard>
         </NuxtLink>
       </div>
@@ -34,6 +37,9 @@ const { data: groups, status, error } = useLazyAsyncData('groups', async () => {
     *,
     kelas (
       nama
+    ),
+    siswa (
+      *
     )
   `)
   if (error) throw error

@@ -45,7 +45,7 @@ const { execute: addKelompok, status, error } = await useAsyncData('addKelompok'
   immediate: false
 })
 
-const { data: kelas } = useAsyncData('kelas', async () => {
+const { data: kelas } = useLazyAsyncData('kelas', async () => {
   const { data, error } = await supabase.from('kelas').select()
   if (error) throw error
   return data
