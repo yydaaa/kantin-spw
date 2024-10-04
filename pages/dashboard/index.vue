@@ -20,7 +20,6 @@ const user = useSupabaseUser()
 const { data: userData } = useAsyncData('userData', async () => {
   const { data, error } = await supabase.from('users').select('nama, role').eq('id', user.value.id).maybeSingle()
   if (error) throw error
-  console.log(data)
   return data
 })
 </script>
