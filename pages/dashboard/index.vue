@@ -3,7 +3,7 @@
     <div>{{ userData?.nama }}</div>
     <ul>
       <li><NuxtLink to="../dashboard/kelompok">Kelola Kelompok</NuxtLink></li>
-      <li v-if="userData?.role"><NuxtLink to="../dashboard/siswa">Kelola Siswa</NuxtLink></li>
+      <li v-if="userData?.role == 'admin'"><NuxtLink to="../dashboard/siswa">Kelola Siswa</NuxtLink></li>
     </ul>
   </div>
 </template>
