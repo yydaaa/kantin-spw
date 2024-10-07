@@ -7,7 +7,7 @@
           <UInput v-model="state.nama" placeholder="contoh: Kelompok 1" />
         </UFormGroup>
         <UFormGroup label="Kelas" name="kelas">
-          <USelect :loading="!kelas" :options="kelas" option-attribute="nama" value-attribute="id"
+          <USelect :loading="!classes" :options="classes" option-attribute="nama" value-attribute="id"
             v-model="state.kelas" />
         </UFormGroup>
         <UButton :loading="status == 'pending'" class="justify-center" type="submit">
@@ -21,6 +21,13 @@
 
 <script setup>
 const supabase = useSupabaseClient()
+const user = useSupabaseUser()
+
+const { data: userData } = await useAsyncData('userData', async () => {
+  const { data, error } = await supabase.from('users').select('nama, role').eq('id', user.value.id).maybeSingle()
+  if (error) throw error
+  return data
+})
 
 const state = reactive({
   nama: '',
@@ -30,25 +37,32 @@ const state = reactive({
 const validate = (state) => {
   const errors = []
   if (!state.nama) errors.push({ path: 'nama', message: 'Required' })
-  if (!state.kelas) errors.push({ path: 'kelas', message: 'Required' })
+  if (!state.kelas && userData.value.role !== 'kelas') errors.push({ path: 'kelas', message: 'Required' })
   return errors
 }
 
-const { execute: addKelompok, status, error } = await useAsyncData('addKelompok', async () => {
+const { execute: addKelompok, status, error } = useAsyncData('addKelompok', async () => {
   const { error } = await supabase.from('kelompok').insert([{
     nama: state.nama,
-    kelas: Number(state.kelas)
+    kelas: Number(state.kelas) || userData.value.nama
   }])
-  if (error) throw new Error('Gagal menambahkan data')
+  if (error) throw error
   navigateTo('/dashboard/kelompok')
 }, {
   immediate: false
 })
 
-const { data: kelas } = await useAsyncData('kelas', async () => {
-  const { data, error } = await supabase.from('kelas').select()
-  if (error) throw error
-  return data
+const { data: classes } = await useAsyncData('classes', async () => {
+  try {
+    let query = supabase.from('kelas').select()
+    if (userData.value.role === 'kelas') query = query.eq('nama', userData.value.nama)
+    const { data, error } = await query
+    if (error) throw error
+    if (userData.value.role === 'kelas') state.kelas = data[0].id
+    return data
+  } catch (error) {
+    console.error(error)
+  }
 })
 </script>
 
