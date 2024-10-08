@@ -1,8 +1,11 @@
 <template>
   <div class="flex">
-    <div>
-      <UVerticalNavigation :links="links" />
-      <UButton color="red" variant="outline" @click="logout" :disabled="status == 'pending'">Logout</UButton>
+    <div class="min-w-52 min-h-screen bg-gray-300 flex flex-col">
+      <UVerticalNavigation :links="links">
+        <template #default="{ link }">
+          <span class="group-hover:text-primary relative" :class="{ 'text-red-700 group-hover:text-red-700': link.label === 'Logout' }">{{ link.label }}</span>
+        </template>
+      </UVerticalNavigation>
       <div v-if="status == 'error'" class="text-red-500">{{ error.message }}</div>
     </div>
     <div class="container mx-auto px-4 py-10">
@@ -38,6 +41,13 @@ const links = [
     {
       label: 'Kelompok',
       to: '/dashboard/kelompok'
+    }
+  ],
+  [
+    {
+      label: 'Logout',
+      click: () => logout(),
+      disabled: status == 'pending'
     }
   ]
 ]
