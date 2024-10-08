@@ -1,5 +1,5 @@
 <template>
-  <div class="container mx-auto px-4 py-10 space-y-5">
+  <div class="space-y-5">
     <div class="flex justify-center">
       <UButton @click="navigateTo('/dashboard/kelompok/tambah')">Tambah Kelompok</UButton>
     </div>
@@ -29,7 +29,8 @@
               @click="openEditModal(group.id)" />
             <UButton icon="i-heroicons-trash-20-solid" size="sm" color="red" square variant="ghost"
               @click="openDeleteModal(group.id)" />
-            <UButton icon="i-heroicons-eye-20-solid" size="sm" color="blue" square variant="ghost" />
+            <UButton icon="i-heroicons-eye-20-solid" size="sm" color="blue" square variant="ghost"
+              @click="navigateTo(`/dashboard/kelompok/${group.id}`)" />
           </template>
         </UCard>
       </div>
@@ -37,7 +38,8 @@
       <UModal v-model="editModal">
         <UCard>
           <template #header>
-            <UButton icon="i-heroicons-x-mark" size="xl" :padded="false" color="black" square variant="ghost" class="float-end" @click="editModal = false" />
+            <UButton icon="i-heroicons-x-mark" size="xl" :padded="false" color="black" square variant="ghost"
+              class="float-end" @click="editModal = false" />
             <h3 class="text-center font-bold">Edit Item</h3>
           </template>
           <UForm class="px-10 space-y-4 flex flex-col" :validate="validate" :state="state"
@@ -67,8 +69,10 @@
           </div>
           <template #footer>
             <div class="flex gap-2">
-              <UButton color="gray" class="flex flex-grow items-center justify-center h-[38px]" @click="deleteModal = false">Cancel</UButton>
-              <UButton :loading="deleteLoading" color="red" class="flex flex-grow items-center justify-center h-[38px]" @click="deleteKelompok(selectedItem.id)">Delete</UButton>
+              <UButton color="gray" class="flex flex-grow items-center justify-center h-[38px]"
+                @click="deleteModal = false">Cancel</UButton>
+              <UButton :loading="deleteLoading" color="red" class="flex flex-grow items-center justify-center h-[38px]"
+                @click="deleteKelompok(selectedItem.id)">Delete</UButton>
             </div>
           </template>
         </UCard>
@@ -105,19 +109,24 @@ const { data: classes } = await useAsyncData('classes', async () => {
 })
 
 const { data: groups, status, error, refresh } = useLazyAsyncData('groups', async () => {
-  const { data, error } = await supabase.from('kelompok').select(`
-    *,
-    kelas!inner (
-      id, nama
-    ),
-    siswa (
-      *
-    )
-  `)
-    .eq('kelas.nama', userData.value?.nama)
-    .order('nama')
-  if (error) throw error
-  return data
+  try {
+    let query = supabase.from('kelompok').select(`
+      *,
+      kelas!inner (
+        id, nama
+      ),
+      siswa ( * )
+    `)
+    if (userData.value?.role === 'kelas') query = query.eq('kelas.nama', userData.value?.nama)
+    else query = query.order('kelas')
+    query = query.order('nama')
+    const { data, error } = await query
+    if (error) throw error
+    return data
+  } catch (error) {
+    console.error(error)
+    return
+  }
 })
 
 const editModal = ref(false)
