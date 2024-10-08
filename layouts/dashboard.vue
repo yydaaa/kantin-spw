@@ -30,6 +30,14 @@ const links = [
       label: 'Dashboard',
       icon: 'i-heroicons-home',
       to: '/dashboard'
+    },
+    {
+      label: 'Siswa',
+      to: '/dashboard/siswa'
+    },
+    {
+      label: 'Kelompok',
+      to: '/dashboard/kelompok'
     }
   ]
 ]
