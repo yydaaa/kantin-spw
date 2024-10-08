@@ -86,6 +86,7 @@ definePageMeta({
   layout: 'dashboard',
   middleware: 'auth'
 })
+
 const supabase = useSupabaseClient()
 const user = useSupabaseUser()
 
