@@ -30,7 +30,8 @@
     const { data, error } = await supabase.from('guru').select(`
       nama,
       jadwal (
-        hari
+        hari,
+        minggu
       )
     `)
     if (error) throw error
@@ -43,9 +44,12 @@
     }, {
       key: 'jadwal.hari',
       label: 'Jadwal'
+    },  {
+      key: 'jadwal.minggu',
+      label: 'Jadwal'
     }, {
       key: 'actions'
-    }
+    },
   ]
   const items = (row) => [
     [{

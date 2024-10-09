@@ -38,6 +38,10 @@ const links = [
     {
       label: 'Kelompok',
       to: '/dashboard/kelompok'
+    },
+    {
+      label:"guru",
+      to: "/dashboard/guru"
     }
   ]
 ]

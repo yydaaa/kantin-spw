@@ -36,7 +36,7 @@
   
   const { execute: addGuru, status, error } = await useAsyncData('addGuru', async () => {
     const { error } = await supabase.from('guru').insert([{
-      nama: state.jadwal,
+      nama: state.nama,
       jadwal: Number(state.jadwal),
      
     }])
