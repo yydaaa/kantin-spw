@@ -1,5 +1,5 @@
 <template>
-  <div class="container mx-auto px-4 py-10 space-y-5">
+  <div class="space-y-5">
     <div class="flex justify-center">
       <UButton @click="navigateTo('/dashboard/siswa/tambah')">Tambah Siswa</UButton>
     </div>
