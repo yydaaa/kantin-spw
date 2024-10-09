@@ -1,5 +1,5 @@
 <template>
-  <div class="container mx-auto px-4 py-10 space-y-5">
+  <div class="space-y-5">
     <div class="flex justify-center">
       <UButton @click="navigateTo('/dashboard/kelompok/tambah')">Tambah Kelompok</UButton>
     </div>
@@ -27,63 +27,68 @@
           <template #footer>
             <UButton icon="i-heroicons-pencil-square-20-solid" size="sm" color="yellow" square variant="ghost"
               @click="openEditModal(group.id)" />
-            <UButton icon="i-heroicons-trash-20-solid" size="sm" color="red" square variant="ghost" />
-            <UButton icon="i-heroicons-eye-20-solid" size="sm" color="blue" square variant="ghost" />
+            <UButton icon="i-heroicons-trash-20-solid" size="sm" color="red" square variant="ghost"
+              @click="openDeleteModal(group.id)" />
+            <UButton icon="i-heroicons-eye-20-solid" size="sm" color="blue" square variant="ghost"
+              @click="navigateTo(`/dashboard/kelompok/${group.id}`)" />
           </template>
         </UCard>
-
-        <UModal v-model="editModal">
-          <UCard>
-            <UForm class="p-10 space-y-4 flex flex-col" :validate="validate" :state="state"
-              @submit="editKelompok(group.id)">
-              <UFormGroup label="Nama Kelompok" name="nama">
-                <UInput v-model="state.nama" placeholder="contoh: Kelompok 1" />
-              </UFormGroup>
-              <UFormGroup label="Kelas" name="kelas">
-                <USelect :loading="!kelas" :options="kelas" option-attribute="nama" value-attribute="id"
-                  v-model="state.kelas" />
-              </UFormGroup>
-              <UButton :loading="editLoading" color="yellow" class="justify-center" type="submit">
-                Edit
-              </UButton>
-            </UForm>
-          </UCard>
-        </UModal>
       </div>
+
+      <UModal v-model="editModal">
+        <UCard>
+          <template #header>
+            <UButton icon="i-heroicons-x-mark" size="xl" :padded="false" color="black" square variant="ghost"
+              class="float-end" @click="editModal = false" />
+            <h3 class="text-center font-bold">Edit Item</h3>
+          </template>
+          <UForm class="px-10 space-y-4 flex flex-col" :validate="validate" :state="state"
+            @submit="editKelompok(selectedItem.id)">
+            <UFormGroup label="Nama Kelompok" name="nama">
+              <UInput v-model="state.nama" placeholder="contoh: Kelompok 1" />
+            </UFormGroup>
+            <UFormGroup label="Kelas" name="kelas">
+              <USelect :loading="!classes" :options="classes" option-attribute="nama" value-attribute="id"
+                v-model="state.kelas" />
+            </UFormGroup>
+            <UButton :loading="editLoading" color="yellow" class="justify-center" type="submit">
+              Edit
+            </UButton>
+          </UForm>
+        </UCard>
+      </UModal>
+
+      <UModal v-model="deleteModal">
+        <UCard>
+          <template #header>
+            <div class="font-semibold">Apakah Anda Yakin Ingin Menghapus Kelompok Ini?</div>
+          </template>
+          <div v-if="selectedItem">
+            <p>Kelompok: {{ selectedItem.nama }}</p>
+            <p v-if="selectedItem.kelas">Kelas: {{ selectedItem.kelas.nama }}</p>
+          </div>
+          <template #footer>
+            <div class="flex gap-2">
+              <UButton color="gray" class="flex flex-grow items-center justify-center h-[38px]"
+                @click="deleteModal = false">Cancel</UButton>
+              <UButton :loading="deleteLoading" color="red" class="flex flex-grow items-center justify-center h-[38px]"
+                @click="deleteKelompok(selectedItem.id)">Delete</UButton>
+            </div>
+          </template>
+        </UCard>
+      </UModal>
     </div>
   </div>
 </template>
 
 <script setup>
-const supabase = useSupabaseClient()
-const user = useSupabaseUser()
-
-const editModal = ref(false)
-const deleteModal = ref(false)
-
-const state = reactive({
-  nama: '',
-  kelas: null
+definePageMeta({
+  layout: 'dashboard',
+  middleware: 'auth'
 })
 
-const validate = (state) => {
-  const errors = []
-  if (!state.nama) errors.push({ path: 'nama', message: 'Required' })
-  if (!state.kelas) errors.push({ path: 'kelas', message: 'Required' })
-  return errors
-}
-
-const openEditModal = async (groupId) => {
-  try {
-    editModal.value = true
-    const { data, error } = await supabase.from('kelompok').select('nama, kelas').eq('id', groupId).maybeSingle()
-    if (error) throw error
-    state.nama = data.nama
-    state.kelas = data.kelas
-  } catch (error) {
-    console.error('Unable to fetch groups:', error)
-  }
-}
+const supabase = useSupabaseClient()
+const user = useSupabaseUser()
 
 const { data: userData } = await useAsyncData('userData', async () => {
   const { data, error } = await supabase.from('users').select('nama, role').eq('id', user.value.id).maybeSingle()
@@ -91,25 +96,67 @@ const { data: userData } = await useAsyncData('userData', async () => {
   return data
 })
 
-const { data: kelas } = await useAsyncData('kelas', async () => {
-  const { data, error } = await supabase.from('kelas').select()
-  if (error) throw error
-  return data
+const { data: classes } = await useAsyncData('classes', async () => {
+  try {
+    let query = supabase.from('kelas').select()
+    if (userData.value.role === 'kelas') query = query.eq('nama', userData.value.nama)
+    const { data, error } = await query
+    if (error) throw error
+    if (userData.value.role === 'kelas') state.kelas = data[0].id
+    return data
+  } catch (error) {
+    console.error(error)
+  }
 })
 
 const { data: groups, status, error, refresh } = useLazyAsyncData('groups', async () => {
-  const { data, error } = await supabase.from('kelompok').select(`
-    *,
-    kelas!inner (
-      nama
-    ),
-    siswa (
-      *
-    )
-  `).eq('kelas.nama', userData.value.nama)
-  if (error) throw error
-  return data
+  try {
+    let query = supabase.from('kelompok').select(`
+      *,
+      kelas!inner (
+        id, nama
+      ),
+      siswa ( * )
+    `)
+    if (userData.value?.role === 'kelas') query = query.eq('kelas.nama', userData.value?.nama)
+    else query = query.order('kelas')
+    query = query.order('nama')
+    const { data, error } = await query
+    if (error) throw error
+    return data
+  } catch (error) {
+    console.error(error)
+    return
+  }
 })
+
+const editModal = ref(false)
+const selectedId = ref(null)
+
+const state = reactive({
+  nama: '',
+  kelas: null
+})
+
+const selectedItem = computed(() => {
+  return groups.value.find(group => group.id === selectedId.value)
+})
+
+const openEditModal = (groupId) => {
+  selectedId.value = groupId
+  if (selectedItem.value) {
+    state.nama = selectedItem.value.nama
+    state.kelas = selectedItem.value.kelas?.id
+  }
+  editModal.value = true
+}
+
+const validate = (state) => {
+  const errors = []
+  if (!state.nama) errors.push({ path: 'nama', message: 'Required' })
+  if (!state.kelas) errors.push({ path: 'kelas', message: 'Required' })
+  return errors
+}
 
 const editLoading = ref(false)
 const editKelompok = async (groupId) => {
@@ -126,6 +173,28 @@ const editKelompok = async (groupId) => {
   } finally {
     editLoading.value = false
     editModal.value = false
+  }
+}
+
+const deleteModal = ref(false)
+
+const openDeleteModal = (groupId) => {
+  selectedId.value = groupId
+  deleteModal.value = true
+}
+
+const deleteLoading = ref(false)
+const deleteKelompok = async (groupId) => {
+  try {
+    deleteLoading.value = true
+    const { error } = await supabase.from('kelompok').delete().eq('id', groupId)
+    if (error) throw error
+    refresh()
+  } catch (error) {
+    console.error(error)
+  } finally {
+    deleteLoading.value = false
+    deleteModal.value = false
   }
 }
 </script>
