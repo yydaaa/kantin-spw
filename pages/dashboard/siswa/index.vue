@@ -15,9 +15,9 @@
     </div>
     <div v-else class="flex justify-center">
       <UTable :rows="students" :columns="columns" :loading="status == 'pending'" class="w-fit border rounded-lg">
-        <template #actions-data="">
-          <UButton icon="heroicons:pencil-square-20-solid" color="gray" variant="ghost" @click="openEditModal" />
-          <UButton icon="heroicons:trash-20-solid" color="red" variant="ghost" @click="openDeleteModal" />
+        <template #actions-data="{ row }">
+          <UButton icon="heroicons:pencil-square-20-solid" color="gray" variant="ghost" @click="openEditModal(row.id)" />
+          <UButton icon="heroicons:trash-20-solid" color="red" variant="ghost" @click="openDeleteModal(row.id)" />
         </template>
       </UTable>
     </div>
@@ -25,9 +25,8 @@
     <UModal v-model="editModal">
       <UCard>
         <template #header>
-          <UButton icon="i-heroicons-x-mark" size="xl" :padded="false" color="black" square variant="ghost"
-            class="float-end" @click="editModal = false" />
-          <h3 class="text-center font-bold">Edit Item</h3>
+          <UButton icon="i-heroicons-x-mark" size="xl" :padded="false" color="black" square variant="ghost" class="float-end" @click="editModal = false" />
+          <h3 class="text-center font-bold">Edit Siswa</h3>
         </template>
         <UForm class="px-10 space-y-4 flex flex-col" :validate="validate" :state="state"
           @submit="editSiswa(selectedItem.id)">
@@ -95,12 +94,12 @@ const { data: classes } = useAsyncData('classes', async () => {
   }
 })
 
-const { data: students, status, error, refresh } = useLazyAsyncData('students', async () => {
+const { data: students, status, error, refresh } = await useAsyncData('students', async () => {
   try {
     let query = supabase.from('siswa').select(`
-      nama,
+      id, nama,
       kelas (
-        nama
+        id, nama
       ),
       token_siswa (
         token
@@ -130,8 +129,8 @@ const selectedItem = computed(() => {
   return students.value.find(student => student.id === selectedId.value)
 })
 
-const openEditModal = (groupId) => {
-  selectedId.value = groupId
+const openEditModal = (studentId) => {
+  selectedId.value = studentId
   if (selectedItem.value) {
     state.nama = selectedItem.value.nama
     state.kelas = selectedItem.value.kelas?.id
@@ -167,7 +166,7 @@ const editSiswa = async (groupId) => {
 const deleteModal = ref(false)
 
 const openDeleteModal = (groupId) => {
-  selectedItem.value = groupId
+  selectedId.value = groupId
   deleteModal.value = true
 }
 
