@@ -24,7 +24,7 @@
   
   const state = reactive({
     nama: '',
-    jadwal: null
+    jadwal: null,
   })
   
   const validate = (state) => {
@@ -38,6 +38,7 @@
     const { error } = await supabase.from('guru').insert([{
       nama: state.nama,
       jadwal: Number(state.jadwal),
+      
      
     }])
     if (error) throw new Error('Gagal menambahkan data')
