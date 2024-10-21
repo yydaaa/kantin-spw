@@ -1,8 +1,8 @@
 <template>
     <div class="container mx-auto px-4 py-10 space-y-5">
       <div class="flex justify-center">
-        <UButton @click="navigateTo('/dashboard/guru/tambah')">Tambah Guru</UButton>
-      </div>
+      <NuxtLink to="/dashboard/guru/tambah" class="bg-green-600 rounded-md p-2 text-white hover:bg-green-700">Tambah Guru</NuxtLink>
+    </div>
       <div v-if="status == 'error'" class="text-red-500">
         {{ error.message }}
       </div>
@@ -43,7 +43,7 @@
       label: 'Nama'
     }, {
       key: 'jadwal.hari',
-      label: 'Jadwal'
+      label: 'hari'
     },  {
       key: 'jadwal.minggu',
       label: 'Jadwal'

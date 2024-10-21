@@ -1,7 +1,7 @@
 <template>
     <div class="flex flex-col w-auto min-h-screen justify-center items-center">
       <div class="w-fit relative border rounded-2xl">
-        <NuxtLink class="absolute top-3 left-3" to="/dashboard/guru">⬅️</NuxtLink>
+        <NuxtLink class="absolute top-3 left-3" to="/dashboard/guru/">⬅️</NuxtLink>
         <UForm class="p-10 space-y-4 flex flex-col" :validate="validate" :state="state" @submit="addGuru">
           <UFormGroup label="Nama Guru" name="nama">
             <UInput v-model="state.nama" placeholder="Nama lengkap" />
@@ -46,7 +46,7 @@
     immediate: false
   })
   
-  const { data: schedules } = useAsyncData('schedules', async () => {
+  const { data: schedules } = await useAsyncData('schedules', async () => {
     const { data, error } = await supabase.from('jadwal').select()
     if (error) throw error
     return data
