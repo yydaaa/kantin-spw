@@ -13,58 +13,58 @@
         {{ error.message }}
       </div>
     </div>
-    <div class="flex justify-center" v-else>
-        <UTable :rows="students" :columns="columns" :loading="status == 'pending'" class="w-fit border rounded-lg">
+    <div v-else class="flex justify-center">
+      <UTable :rows="students" :columns="columns" :loading="status == 'pending'" class="w-fit border rounded-lg">
         <template #actions-data="">
-            <UButton icon="heroicons:pencil-square-20-solid" color="gray" variant="ghost" @click="openEditModal"/>
-            <UButton icon="heroicons:trash-20-solid" color="red" variant="ghost" @click="openDeleteModal"/>
+          <UButton icon="heroicons:pencil-square-20-solid" color="gray" variant="ghost" @click="openEditModal" />
+          <UButton icon="heroicons:trash-20-solid" color="red" variant="ghost" @click="openDeleteModal" />
         </template>
-        </UTable>
-      </div>
-
-      <UModal v-model="editModal">
-        <UCard>
-          <template #header>
-            <UButton icon="i-heroicons-x-mark" size="xl" :padded="false" color="black" square variant="ghost"
-              class="float-end" @click="editModal = false" />
-            <h3 class="text-center font-bold">Edit Item</h3>
-          </template>
-          <UForm class="px-10 space-y-4 flex flex-col" :validate="validate" :state="state"
-            @submit="editSiswa(selectedItem.id)">
-            <UFormGroup label="Nama Siswa" name="nama">
-              <UInput v-model="state.nama" placeholder="Nama Lengkap" />
-            </UFormGroup>
-            <UFormGroup label="Kelas" name="kelas">
-              <USelect :loading="!classes" :options="classes" option-attribute="nama" value-attribute="id"
-                v-model="state.kelas" />
-            </UFormGroup>
-            <UButton :loading="editLoading" color="yellow" class="justify-center" type="submit">
-              Edit
-            </UButton>
-          </UForm>
-        </UCard>
-      </UModal>
-
-      <UModal v-model="deleteModal">
-        <UCard>
-          <template #header>
-            <div class="font-semibold">Apakah Anda Yakin Ingin Menghapus Ini?</div>
-          </template>
-          <div v-if="selectedItem">
-            <p>Nama Siswa: {{ selectedItem.nama }}</p>
-            <p v-if="selectedItem.kelas">Kelas: {{ selectedItem.kelas.nama }}</p>
-          </div>
-          <template #footer>
-            <div class="flex gap-2">
-              <UButton color="gray" class="flex flex-grow items-center justify-center h-[38px]"
-                @click="deleteModal = false">Cancel</UButton>
-              <UButton :loading="deleteLoading" color="red" class="flex flex-grow items-center justify-center h-[38px]"
-                @click="deleteSiswa(selectedItem.id)">Delete</UButton>
-            </div>
-          </template>
-        </UCard>
-      </UModal>
+      </UTable>
     </div>
+
+    <UModal v-model="editModal">
+      <UCard>
+        <template #header>
+          <UButton icon="i-heroicons-x-mark" size="xl" :padded="false" color="black" square variant="ghost"
+            class="float-end" @click="editModal = false" />
+          <h3 class="text-center font-bold">Edit Item</h3>
+        </template>
+        <UForm class="px-10 space-y-4 flex flex-col" :validate="validate" :state="state"
+          @submit="editSiswa(selectedItem.id)">
+          <UFormGroup label="Nama Siswa" name="nama">
+            <UInput v-model="state.nama" placeholder="Nama Lengkap" />
+          </UFormGroup>
+          <UFormGroup label="Kelas" name="kelas">
+            <USelect :loading="!classes" :options="classes" option-attribute="nama" value-attribute="id"
+              v-model="state.kelas" />
+          </UFormGroup>
+          <UButton :loading="editLoading" color="yellow" class="justify-center" type="submit">
+            Edit
+          </UButton>
+        </UForm>
+      </UCard>
+    </UModal>
+
+    <UModal v-model="deleteModal">
+      <UCard>
+        <template #header>
+          <div class="font-semibold">Apakah Anda Yakin Ingin Menghapus Ini?</div>
+        </template>
+        <div v-if="selectedItem">
+          <p>Nama Siswa: {{ selectedItem.nama }}</p>
+          <p v-if="selectedItem.kelas">Kelas: {{ selectedItem.kelas.nama }}</p>
+        </div>
+        <template #footer>
+          <div class="flex gap-2">
+            <UButton color="gray" class="flex flex-grow items-center justify-center h-[38px]"
+              @click="deleteModal = false">Cancel</UButton>
+            <UButton :loading="deleteLoading" color="red" class="flex flex-grow items-center justify-center h-[38px]"
+              @click="deleteSiswa(selectedItem.id)">Delete</UButton>
+          </div>
+        </template>
+      </UCard>
+    </UModal>
+  </div>
 </template>
 
 <script setup>
@@ -82,7 +82,7 @@ const { data: userData } = await useAsyncData('userData', async () => {
   return data
 })
 
-const { data: classes } = await useAsyncData('classes', async () => {
+const { data: classes } = useAsyncData('classes', async () => {
   try {
     let query = supabase.from('kelas').select()
     if (userData.value.role === 'kelas') query = query.eq('nama', userData.value.nama)
@@ -100,8 +100,11 @@ const { data: students, status, error, refresh } = useLazyAsyncData('students', 
     let query = supabase.from('siswa').select(`
       nama,
       kelas (
-      nama
-        )
+        nama
+      ),
+      token_siswa (
+        token
+      )
     `)
     if (userData.value?.role === 'kelas') query = query.eq('kelas.nama', userData.value?.nama)
     else query = query.order('kelas')
@@ -189,6 +192,9 @@ const columns = [
   }, {
     key: 'kelas.nama',
     label: 'Kelas'
+  }, {
+    key: 'token_siswa.token',
+    label: 'Token'
   }, {
     key: 'actions'
   }

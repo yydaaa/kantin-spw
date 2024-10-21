@@ -40,7 +40,7 @@
           <template #header>
             <UButton icon="i-heroicons-x-mark" size="xl" :padded="false" color="black" square variant="ghost"
               class="float-end" @click="editModal = false" />
-            <h3 class="text-center font-bold">Edit Item</h3>
+            <h3 class="text-center font-bold">Edit Kelomopok</h3>
           </template>
           <UForm class="px-10 space-y-4 flex flex-col" :validate="validate" :state="state"
             @submit="editKelompok(selectedItem.id)">
@@ -96,7 +96,7 @@ const { data: userData } = await useAsyncData('userData', async () => {
   return data
 })
 
-const { data: classes } = await useAsyncData('classes', async () => {
+const { data: classes } = useAsyncData('classes', async () => {
   try {
     let query = supabase.from('kelas').select()
     if (userData.value.role === 'kelas') query = query.eq('nama', userData.value.nama)
