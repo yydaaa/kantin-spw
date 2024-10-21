@@ -6,8 +6,8 @@
     <div v-if="status == 'error'" class="text-red-500">
       {{ error.message }}
     </div>
-    <div class="flex justify-center" v-else>
-      <UTable :rows="students" :columns="columns" :loading="status == 'pending'" class="w-fit border rounded-lg">
+    <div v-else class="flex justify-center">
+      <UTable :rows="students" :columns="columns" :loading="status == 'pending'" class="w-full border rounded-lg">
         <template #actions-data="{ row }">
           <UDropdown :items="items(row)">
             <UButton color="gray" variant="ghost" icon="i-heroicons-ellipsis-horizontal-20-solid" />
@@ -25,11 +25,14 @@ definePageMeta({
 
 const supabase = useSupabaseClient()
 
-const { data: students, status, error } = await useAsyncData('students', async () => {
+const { data: students, status, error } = useAsyncData('students', async () => {
   const { data, error } = await supabase.from('siswa').select(`
     nama,
     kelas (
       nama
+    ),
+    token_siswa (
+      token
     )
   `)
   if (error) throw error
@@ -42,6 +45,9 @@ const columns = [
   }, {
     key: 'kelas.nama',
     label: 'Kelas'
+  }, {
+    key: 'token_siswa.token',
+    label: 'Token'
   }, {
     key: 'actions'
   }
