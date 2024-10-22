@@ -1,6 +1,6 @@
 <template>
-  <div class="flex">
-    <div class="min-w-52 min-h-screen bg-gray-300 flex flex-col">
+  <div class="flex min-h-screen">
+    <div class="min-w-52 bg-gray-300 flex flex-col">
       <UVerticalNavigation :links="links">
         <template #default="{ link }">
           <span class="group-hover:text-primary relative" :class="{ 'text-red-700 group-hover:text-red-700': link.label === 'Logout' }">{{ link.label }}</span>
@@ -8,7 +8,7 @@
       </UVerticalNavigation>
       <div v-if="status == 'error'" class="text-red-500">{{ error.message }}</div>
     </div>
-    <div class="container mx-auto px-4 py-10">
+    <div class="container px-4 py-10 flex">
       <slot />
     </div>
   </div>
@@ -41,6 +41,10 @@ const links = [
     {
       label: 'Kelompok',
       to: '/dashboard/kelompok'
+    },
+    {
+      label: 'Kelola Produk',
+      to: '/dashboard/produk'
     }
   ],
   [
