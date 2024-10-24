@@ -15,7 +15,7 @@
     </div>
     <div v-else class="flex flex-col items-center"> 
       <div class="w-1/2 py-3">
-        <UInput v-model="searchQuery" placeholder="Cari Siswa..." icon="heroicons:magnifying-glass-20-solid" />
+        <UInput v-model="searchQuery" placeholder="Cari Siswa..." icon="heroicons:magnifying-glass-20-solid" @input="() => page = 1" />
       </div>
       <UTable :rows="filteredRows"   :columns="columns" :loading="status == 'pending'" class="w-1/2 border rounded-lg ">
         <template #actions-data="{ row }">
@@ -202,7 +202,8 @@ const columns = [
     key: 'token_siswa.token',
     label: 'Token'
   }, {
-    key: 'actions'
+    key: 'actions',
+    class: 'w-20'
   }
 ]
 

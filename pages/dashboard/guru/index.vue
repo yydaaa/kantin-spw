@@ -8,16 +8,17 @@
     </div>
     <div v-else class="flex flex-col items-center"> 
       <div class="w-1/2 py-3">
-        <UInput v-model="searchQuery" placeholder="Cari Nama..." class="w-full" icon="heroicons:magnifying-glass-20-solid" />
+        <UInput v-model="searchQuery" placeholder="Cari Nama..." class="w-full" icon="heroicons:magnifying-glass-20-solid" @input="() => page = 1" />
       </div>
       <UTable :rows="filteredRows" :columns="columns" :loading="status == 'pending'" class="border rounded-lg w-1/2">
         <template #actions-data="{ row }">
-          
             <UButton color="gray" variant="ghost" icon="heroicons:pencil-square-20-solid" @click="openEditModal(row.id)"/>
             <UButton color="red" variant="ghost" icon="heroicons:trash-20-solid" @click="openDeleteModal(row.id)"/>
-          
         </template>
       </UTable>
+      <div class="flex justify-end px-3 py-3.5 border-t border-gray-200 dark:border-gray-700">
+        <UPagination v-model="page" :page-count="pageCount" :total="teachers.length" />
+      </div>
 
       <UModal v-model="editModal">
       <UCard>
@@ -183,12 +184,13 @@ const columns = [
     key: 'nama',
     label: 'Nama'
   },{
-    key: 'actions'
+    key: 'actions',
+    class: 'w-20'
   }
 ]
 
 const page = ref(1)
-const pageCount = 10
+const pageCount = 8
 
 const filteredRows = computed(() => {
   if (!searchQuery.value) {
@@ -196,14 +198,15 @@ const filteredRows = computed(() => {
   }
   
   const filtered = teachers.value.filter((teacher) => {
-
     const filternama = teacher.nama.toLowerCase().includes(searchQuery.value.toLowerCase());
-    return filternama;
 
+    return filternama;
   })
   
   return filtered.slice((page.value - 1) * pageCount, (page.value) * pageCount)
 })
+
+
 
 </script>
 

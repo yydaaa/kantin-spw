@@ -42,6 +42,10 @@ const links = [
     {
       label: 'Kelompok',
       to: '/dashboard/kelompok'
+    }, 
+    {
+      label: 'Guru',
+      to: '/dashboard/guru'
     },
     {
       label: 'Kelola Produk',
