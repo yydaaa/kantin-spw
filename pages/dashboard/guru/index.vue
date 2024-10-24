@@ -1,47 +1,38 @@
 <template>
   <div class="container mx-auto px-4 py-10 space-y-5">
     <div class="flex justify-center">
-      <UButton @click="navigateTo('/dashboard/siswa/tambah')">Tambah siswa</UButton>
-    </div>
-
-    <div v-if="status == 'pending' || status == 'error'">
-      <div v-if="status == 'pending'">
-        Loading...
-      </div>
-
-      <div v-if="status == 'error'">
-        {{ error.message }}
-      </div>
+      <UButton @click="navigateTo('/dashboard/guru/tambah')">Tambah Guru</UButton>
+  </div>
+    <div v-if="status == 'error'" class="text-red-500">
+      {{ error.message }}
     </div>
     <div v-else class="flex flex-col items-center"> 
       <div class="w-1/2 py-3">
-        <UInput v-model="searchQuery" placeholder="Cari Siswa..." icon="heroicons:magnifying-glass-20-solid" />
+        <UInput v-model="searchQuery" placeholder="Cari Nama..." class="w-full" icon="heroicons:magnifying-glass-20-solid" />
       </div>
-      <UTable :rows="filteredRows"   :columns="columns" :loading="status == 'pending'" class="w-1/2 border rounded-lg ">
+      <UTable :rows="filteredRows" :columns="columns" :loading="status == 'pending'" class="border rounded-lg w-1/2">
         <template #actions-data="{ row }">
-          <UButton icon="heroicons:pencil-square-20-solid" color="gray" variant="ghost" @click="openEditModal(row.id)" />
-          <UButton icon="heroicons:trash-20-solid" color="red" variant="ghost" @click="openDeleteModal(row.id)" />
+          
+            <UButton color="gray" variant="ghost" icon="heroicons:pencil-square-20-solid" @click="openEditModal(row.id)"/>
+            <UButton color="red" variant="ghost" icon="heroicons:trash-20-solid" @click="openDeleteModal(row.id)"/>
+          
         </template>
       </UTable>
-      <div class="flex justify-end px-3 py-3.5 border-t border-gray-200 dark:border-gray-700">
-        <UPagination v-model="page" :page-count="pageCount" :total="students.length" />
-      </div>
-    </div>
 
-    <UModal v-model="editModal">
+      <UModal v-model="editModal">
       <UCard>
         <template #header>
           <UButton icon="i-heroicons-x-mark" size="xl" :padded="false" color="black" square variant="ghost" class="float-end" @click="editModal = false" />
-          <h3 class="text-center font-bold">Edit Siswa</h3>
+          <h3 class="text-center font-bold">Edit Guru</h3>
         </template>
         <UForm class="px-10 space-y-4 flex flex-col" :validate="validate" :state="state"
-          @submit="editSiswa(selectedItem.id)">
-          <UFormGroup label="Nama Siswa" name="nama">
+          @submit="editGuru(selectedItem.id)">
+          <UFormGroup label="Nama Guru" name="nama">
             <UInput v-model="state.nama" placeholder="Nama Lengkap" />
           </UFormGroup>
-          <UFormGroup label="Kelas" name="kelas">
-            <USelect :loading="!classes" :options="classes" option-attribute="nama" value-attribute="id"
-              v-model="state.kelas" />
+          <UFormGroup label="Jadwal" name="jadwal">
+            <USelect :loading="!schedules" :options="schedules" placeholder="Jadwal" option-attribute="hari" value-attribute="id"
+              v-model="state.jadwal" />
           </UFormGroup>
           <UButton :loading="editLoading" color="yellow" class="justify-center" type="submit">
             Edit
@@ -49,26 +40,26 @@
         </UForm>
       </UCard>
     </UModal>
-
     <UModal v-model="deleteModal">
       <UCard>
         <template #header>
-          <div class="font-semibold">Apakah Anda Yakin Ingin Menghapus Ini?</div>
+          <div class="font-semibold text-center">Apakah Anda Yakin Ingin Menghapus Ini?</div>
         </template>
         <div v-if="selectedItem">
-          <p>Nama Siswa: {{ selectedItem.nama }}</p>
-          <p v-if="selectedItem.kelas">Kelas: {{ selectedItem.kelas.nama }}</p>
+          <p>Nama Guru: {{ selectedItem.nama }}</p>
+          <p v-if="selectedItem.jadwal">Hari: {{ selectedItem.jadwal.hari }}</p>
         </div>
         <template #footer>
           <div class="flex gap-2">
             <UButton color="gray" class="flex flex-grow items-center justify-center h-[38px]"
               @click="deleteModal = false">Cancel</UButton>
             <UButton :loading="deleteLoading" color="red" class="flex flex-grow items-center justify-center h-[38px]"
-              @click="deleteSiswa(selectedItem.id)">Delete</UButton>
+              @click="deleteGuru(selectedItem.id)">Delete</UButton>
           </div>
         </template>
       </UCard>
     </UModal>
+    </div>
   </div>
 </template>
 
@@ -80,6 +71,7 @@ definePageMeta({
 
 const supabase = useSupabaseClient()
 const user = useSupabaseUser()
+
 const searchQuery = ref('')
 
 const { data: userData } = await useAsyncData('userData', async () => {
@@ -88,32 +80,29 @@ const { data: userData } = await useAsyncData('userData', async () => {
   return data
 })
 
-const { data: classes } = useAsyncData('classes', async () => {
+const { data: schedules } = useAsyncData('schedules', async () => {
   try {
-    let query = supabase.from('kelas').select()
-    if (userData.value.role === 'kelas') query = query.eq('nama', userData.value.nama)
+    let query = supabase.from('jadwal').select().order('id')
+    if (userData.value.role === 'guru') query = query.eq('nama', userData.value.nama)
     const { data, error } = await query
     if (error) throw error
-    if (userData.value.role === 'kelas') state.kelas = data[0].id
+    if (userData.value.role === 'guru') state.jadwal= data[0].id
     return data
   } catch (error) {
     console.error(error)
   }
 })
 
-const { data: students, status, error, refresh } = await useAsyncData('students', async () => {
+const { data: teachers, status, error, refresh } = await useAsyncData('teachers', async () => {
   try {
-    let query = supabase.from('siswa').select(`
+    let query = supabase.from('guru').select(`
       id, nama,
-      kelas (
-        id, nama
-      ),
-      token_siswa (
-        token
+          jadwal(
+        hari
       )
-    `)
-    if (userData.value?.role === 'kelas') query = query.eq('kelas.nama', userData.value?.nama)
-    else query = query.order('kelas')
+    `).order('id')
+    if (userData.value?.role === 'guru') query = query.eq('jadwal', userData.value?.nama)
+    else query = query.order('jadwal')
     query = query.order('id')
     const { data, error } = await query
     if (error) throw error
@@ -129,18 +118,17 @@ const selectedId = ref(null)
 
 const state = reactive({
   nama: '',
-  kelas: null
+  jadwal: null
 })
 
 const selectedItem = computed(() => {
-  return students.value.find(student => student.id === selectedId.value)
+  return teachers.value.find(teacher => teacher.id === selectedId.value)
 })
 
-const openEditModal = (studentId) => {
-  selectedId.value = studentId
+const openEditModal = (teacherId) => {
+  selectedId.value = teacherId
   if (selectedItem.value) {
     state.nama = selectedItem.value.nama
-    state.kelas = selectedItem.value.kelas?.id
   }
   editModal.value = true
 }
@@ -148,17 +136,16 @@ const openEditModal = (studentId) => {
 const validate = (state) => {
   const errors = []
   if (!state.nama) errors.push({ path: 'nama', message: 'Required' })
-  if (!state.kelas) errors.push({ path: 'kelas', message: 'Required' })
   return errors
 }
 
 const editLoading = ref(false)
-const editSiswa = async (groupId) => {
+const editGuru = async (groupId) => {
   try {
     editLoading.value = true
-    const { error } = await supabase.from('siswa').update({
+    const { error } = await supabase.from('guru').update({
       nama: state.nama,
-      kelas: Number(state.kelas)
+      
     }).eq('id', groupId)
     if (error) throw error
     refresh()
@@ -178,10 +165,10 @@ const openDeleteModal = (groupId) => {
 }
 
 const deleteLoading = ref(false)
-const deleteSiswa = async (groupId) => {
+const deleteGuru = async (groupId) => {
   try {
     deleteLoading.value = true
-    const { error } = await supabase.from('siswa').delete().eq('id', groupId)
+    const { error } = await supabase.from('guru').delete().eq('id', groupId)
     if (error) throw error
     refresh()
   } catch (error) {
@@ -195,13 +182,7 @@ const columns = [
   {
     key: 'nama',
     label: 'Nama'
-  }, {
-    key: 'kelas.nama',
-    label: 'Kelas'
-  }, {
-    key: 'token_siswa.token',
-    label: 'Token'
-  }, {
+  },{
     key: 'actions'
   }
 ]
@@ -211,21 +192,19 @@ const pageCount = 10
 
 const filteredRows = computed(() => {
   if (!searchQuery.value) {
-    return students.value.slice((page.value - 1) * pageCount, (page.value) * pageCount)
+    return teachers.value.slice((page.value - 1) * pageCount, (page.value) * pageCount)
   }
   
-  const filtered = students.value.filter((student) => {
-    const filternama = student.nama.toLowerCase().includes(searchQuery.value.toLowerCase());
-    // const filterkelas = student.kelas.nama.toLowerCase().includes(searchQuery.value.toLowerCase());
+  const filtered = teachers.value.filter((teacher) => {
 
-    return filternama //|| filterkelas;
+    const filternama = teacher.nama.toLowerCase().includes(searchQuery.value.toLowerCase());
+    return filternama;
+
   })
   
   return filtered.slice((page.value - 1) * pageCount, (page.value) * pageCount)
 })
 
-
 </script>
-
 
 <style scoped></style>

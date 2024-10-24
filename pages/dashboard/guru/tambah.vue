@@ -1,14 +1,14 @@
 <template>
   <div class="flex flex-col w-auto min-h-screen justify-center items-center">
     <div class="w-fit relative border rounded-2xl">
-      <NuxtLink class="absolute top-3 left-3" to="/dashboard/siswa">⬅️</NuxtLink>
-      <UForm class="p-10 space-y-4 flex flex-col" :validate="validate" :state="state" @submit="addSiswa">
-        <UFormGroup label="Nama Siswa" name="nama">
+      <NuxtLink class="absolute top-3 left-3" to="/dashboard/guru/">⬅️</NuxtLink>
+      <UForm class="p-10 space-y-4 flex flex-col" :validate="validate" :state="state" @submit="addGuru">
+        <UFormGroup label="Nama Guru" name="nama">
           <UInput v-model="state.nama" placeholder="Nama lengkap" />
         </UFormGroup>
-        <UFormGroup label="Kelas" name="kelas">
-          <USelect :options="classes" option-attribute="nama" value-attribute="id"
-            v-model="state.kelas" />
+        <UFormGroup label="Jadwal" name="jadwal">
+          <USelect :options="schedules" option-attribute="hari" value-attribute="id" class="text-black"
+            v-model="state.jadwal" placeholder="Hari"/>
         </UFormGroup>
         <UButton :loading="status == 'pending'" class="justify-center" type="submit">
           Tambah
@@ -20,38 +20,34 @@
 </template>
 
 <script setup>
-definePageMeta({
-  layout: 'dashboard',
-  middleware: 'auth'
-})
-
 const supabase = useSupabaseClient()
 
 const state = reactive({
   nama: '',
-  kelas: null
+  jadwal: null,
 })
 
 const validate = (state) => {
   const errors = []
   if (!state.nama) errors.push({ path: 'nama', message: 'Required' })
-  if (!state.kelas) errors.push({ path: 'kelas', message: 'Required' })
+  if (!state.jadwal) errors.push({ path: 'jadwal', message: 'Required' })
   return errors
 }
 
-const { execute: addSiswa, status, error } = await useAsyncData('addSiswa', async () => {
-  const { error } = await supabase.from('siswa').insert([{
+const { execute: addGuru, status, error } = await useAsyncData('addGuru', async () => {
+  const { error } = await supabase.from('guru').insert([{
     nama: state.nama,
-    kelas: Number(state.kelas),
+    jadwal: Number(state.jadwal.hari),
+    
   }])
   if (error) throw new Error('Gagal menambahkan data')
-  navigateTo('/dashboard/siswa')
+  navigateTo('/dashboard/guru')
 }, {
   immediate: false
 })
 
-const { data: classes } = await useAsyncData('classes', async () => {
-  const { data, error } = await supabase.from('kelas').select()
+const { data: schedules } = await useAsyncData('schedules', async () => {
+  const { data, error } = await supabase.from('jadwal').select().order('id')
   if (error) throw error
   return data
 })
