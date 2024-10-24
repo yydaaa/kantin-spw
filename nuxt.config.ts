@@ -6,5 +6,9 @@ export default defineNuxtConfig({
   supabase: { redirect: false },
   colorMode: {
     preference: 'light'
+  },
+  app: {
+    pageTransition: { name: 'page', mode: 'out-in' },
+    layoutTransition: { name: 'layout', mode: 'out-in' }
   }
 })

@@ -40,7 +40,7 @@ const { data: products, status, error, refresh } = useLazyAsyncData('products', 
           nama
         )
       )
-    `).order('foto', { ascending: false })
+    `).order('foto')
     if (error) throw error
     if (data) {
       data = data.map(data => {
