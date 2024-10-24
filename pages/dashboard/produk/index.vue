@@ -18,15 +18,16 @@
     </div>
     <div v-else class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-10 gap-y-5">
       <div v-for="product in products" :key="product.id" class="flex">
-        <UCard>
+        <UCard class="flex flex-col" :ui="{ header: { base: 'flex-grow flex items-center' } }">
           <template #header>
-            <img v-if="product.foto" :src="product.fotoUrl" />
-            <img v-else src="~/assets/img/img-placeholder.png" />
+            <NuxtImg v-if="product.fotoUrl" :src="product.fotoUrl" width="300" />
+            <NuxtImg v-else src="img/img-placeholder.png" width="300" />
           </template>
-          <div class="text-center font-bold">{{ product.nama }}</div>
-          <div v-if="product.kelompok" class="text-center text-gray-500 text-sm">{{ product.kelompok.nama }} / {{ product.kelompok.kelas.nama }}</div>
-          <div>Jumlah Tersimpan: {{ product.banyak }}</div>
-          <div>Harga: Rp.{{ product.harga }}</div>
+          <div class="text-center font-bold text-lg">{{ product.nama }}</div>
+          <div v-if="product.kelompok" class="text-center text-gray-500 text-sm">{{ product.kelompok.nama }} / {{
+            product.kelompok.kelas.nama }}</div>
+          <div class="text-sm">Jumlah Tersimpan: {{ product.banyak }}</div>
+          <div class="text-sm">Harga: Rp.{{ product.harga }}</div>
           <template #footer>
             <UButton icon="i-heroicons-pencil-square-20-solid" size="sm" color="yellow" square variant="ghost"
               @click="openEditModal(product.id)" />
@@ -44,9 +45,11 @@
             class="float-end" @click="closeEditModal" />
           <h3 class="text-center font-bold">Edit Produk</h3>
         </template>
-        <UForm class="px-10 space-y-4 flex flex-col" :validate="validate" :state="state" @submit="editProduct(selectedItem.id)">
+        <UForm class="px-10 space-y-4 flex flex-col" :validate="validate" :state="state"
+          @submit="editProduct(selectedItem.id)">
           <UFormGroup label="Kelompok" name="kelompok">
-            <USelect :loading="!groups" :options="groups" option-attribute="nama" value-attribute="id" v-model="state.kelompok" @change="groupPicked" />
+            <USelect :loading="!groups" :options="groups" option-attribute="nama" value-attribute="id"
+              v-model="state.kelompok" @change="groupPicked" />
           </UFormGroup>
           <UFormGroup label="Nama Produk" name="nama">
             <UInput v-model="state.nama" />
@@ -73,24 +76,26 @@
     </UModal>
 
     <UModal v-model="deleteModal" prevent-close>
-        <UCard>
-          <template #header>
-            <div class="font-semibold">Apakah Anda Yakin Ingin Menghapus Produk Ini?</div>
-          </template>
-          <div v-if="selectedItem">
-            <p>Nama Produk: {{ selectedItem.nama }}</p>
-            <p v-if="selectedItem.kelompok">Kelompok: {{ selectedItem.kelompok.nama }} / {{ selectedItem.kelompok.kelas.nama }}</p>
+      <UCard>
+        <template #header>
+          <div class="font-semibold">Apakah Anda Yakin Ingin Menghapus Produk Ini?</div>
+        </template>
+        <div v-if="selectedItem">
+          <p>Nama Produk: {{ selectedItem.nama }}</p>
+          <p v-if="selectedItem.kelompok">Kelompok: {{ selectedItem.kelompok.nama }} / {{
+            selectedItem.kelompok.kelas.nama
+            }}</p>
+        </div>
+        <template #footer>
+          <div class="flex gap-2">
+            <UButton color="gray" class="flex flex-grow items-center justify-center h-[38px]" @click="closeDeleteModal">
+              Cancel</UButton>
+            <UButton :loading="deleteLoading" color="red" class="flex flex-grow items-center justify-center h-[38px]"
+              @click="deleteProduct(selectedItem.id)">Delete</UButton>
           </div>
-          <template #footer>
-            <div class="flex gap-2">
-              <UButton color="gray" class="flex flex-grow items-center justify-center h-[38px]"
-                @click="closeDeleteModal">Cancel</UButton>
-              <UButton :loading="deleteLoading" color="red" class="flex flex-grow items-center justify-center h-[38px]"
-                @click="deleteProduct(selectedItem.id)">Delete</UButton>
-            </div>
-          </template>
-        </UCard>
-      </UModal>
+        </template>
+      </UCard>
+    </UModal>
   </div>
 </template>
 
@@ -134,7 +139,7 @@ const { data: products, status, error, refresh } = useLazyAsyncData('products', 
           nama
         )
       )
-    `).eq('kelompok.kelas.nama', userData.value.nama).order('kelompok')
+    `).eq('kelompok.kelas.nama', userData.value.nama).order('foto', { ascending: false })
     if (error) throw error
     if (data) {
       data = data.map(data => {
