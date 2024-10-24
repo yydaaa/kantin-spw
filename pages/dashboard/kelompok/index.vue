@@ -1,5 +1,5 @@
 <template>
-  <div class="space-y-5">
+  <div class="flex flex-col flex-grow gap-y-5">
     <div class="flex justify-center">
       <UButton @click="navigateTo('/dashboard/kelompok/tambah')">Tambah Kelompok</UButton>
     </div>
@@ -167,12 +167,12 @@ const editKelompok = async (groupId) => {
       kelas: Number(state.kelas)
     }).eq('id', groupId)
     if (error) throw error
+    editModal.value = false
     refresh()
   } catch (error) {
     console.error(error)
   } finally {
     editLoading.value = false
-    editModal.value = false
   }
 }
 
@@ -189,12 +189,12 @@ const deleteKelompok = async (groupId) => {
     deleteLoading.value = true
     const { error } = await supabase.from('kelompok').delete().eq('id', groupId)
     if (error) throw error
+    deleteModal.value = false
     refresh()
   } catch (error) {
     console.error(error)
   } finally {
     deleteLoading.value = false
-    deleteModal.value = false
   }
 }
 </script>

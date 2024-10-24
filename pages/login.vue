@@ -13,7 +13,7 @@
       </div>
       <div class="mb-4">
         <UButton type="submit" color="black" class="w-full justify-center rounded"
-          :disabled="status == 'pending' || !password">Log In</UButton>
+          :loading="status == 'pending'" :disabled="!password">Log In</UButton>
       </div>
     </form>
     <NuxtLink to="/">Back</NuxtLink>
@@ -35,10 +35,15 @@ const { execute: login, status, error } = useAsyncData('login', async () => {
     email: email.value,
     password: password.value
   })
-  if (error) throw "Username atau password salah"
+  if (error) throw new Error('Email atau password salah')
   if (user) navigateTo('/dashboard')
 }, {
   immediate: false
+})
+watch(error, () => {
+  setTimeout(() => {
+    error.value = ''
+  }, 3000)
 })
 </script>
 
