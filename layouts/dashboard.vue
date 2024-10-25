@@ -34,18 +34,33 @@ const links = [
       icon: 'i-heroicons-home',
       to: '/dashboard'
     },
+
     {
       label: 'Siswa',
       to: '/dashboard/siswa'
     },
+
     {
       label: 'Kelompok',
       to: '/dashboard/kelompok'
     },
+
     {
-      label:"guru",
+      label:"Guru",
       to: "/dashboard/guru"
-    }
+    },
+
+
+    {
+      label:"Jadwal",
+      icon: "heroicons:calendar-20-solid",
+      to: "/dashboard/jadwal"
+    },
+
+    {
+      label:"Pket Guru",
+      to: "/dashboard/jadwalpiketguru"
+    },
   ],
   [
     {
