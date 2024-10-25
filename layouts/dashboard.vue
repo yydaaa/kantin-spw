@@ -3,7 +3,7 @@
     <div class="flex-1 flex flex-col overflow-hidden">
       <DashboardHeader />
       <div class="flex h-full">
-        <Sidebar />
+        <DashboardSidebar />
         <div class="container px-4 py-10 flex-1 overflow-x-hidden overflow-y-auto">
           <slot />
         </div>
