@@ -10,8 +10,14 @@
     "postinstall": "nuxt prepare"
   },
   "dependencies": {
-    "nuxt": "^3.13.0",
+    "@nuxt/image": "^1.8.1",
+    "@nuxt/ui": "^2.18.7",
+    "@nuxtjs/supabase": "^1.4.1",
+    "nuxt": "^3.13.2",
     "vue": "latest",
-    "vue-router": "latest"
+    "vue-router": "^4.4.5"
+  },
+  "devDependencies": {
+    "@iconify-json/tabler": "^1.2.6"
   }
 }
