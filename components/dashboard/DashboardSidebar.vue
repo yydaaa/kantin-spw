@@ -36,20 +36,24 @@ const links = [
       to: '/dashboard'
     },
     {
-      label: 'Siswa',
+      label: 'Kelola Siswa',
       to: '/dashboard/siswa'
     },
     {
-      label: 'Kelompok',
+      label: 'Kelola Kelompok',
       to: '/dashboard/kelompok'
     }, 
     {
-      label: 'Guru',
+      label: 'Kelola Guru',
       to: '/dashboard/guru'
     },
     {
       label: 'Kelola Produk',
       to: '/dashboard/produk'
+    },
+    {
+      label: 'Jadwal',
+      to: '/dashboard/jadwal'
     }
   ],
   [

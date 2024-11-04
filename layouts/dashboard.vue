@@ -5,7 +5,7 @@
       <div class="flex h-full">
         <DashboardSidebar />
         <div class="flex-1 overflow-x-hidden overflow-y-auto">
-          <div class="container mx-auto px-4 pt-10 pb-20">
+          <div class="container mx-auto  justify-center px-4 pt-10 pb-20">
             <slot />
           </div>
         </div>
