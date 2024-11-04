@@ -1,9 +1,9 @@
 <template>
-  <div class="flex gap-12 mb-10">
+  <div class="flex gap-12 mb-10 align-center">
     <NuxtLink class="w-1/2" to="/dashboard/jadwal/siswa">
       <UCard>
         <template>
-          <div class="font-semibold text-center jdsiswa">JADWAL SISWA</div>
+          <div class="font-semibold text-center">JADWAL SISWA</div>
         </template>
       </UCard>
     </NuxtLink>
@@ -113,7 +113,5 @@ const validate = (state) => {
 
 
 <style scoped>
-.jdsiswa{
-  background-image: url('https://www.google.com/imgres?q=logo&imgurl=https%3A%2F%2Fuploads.vw-mms.de%2Fsystem%2Fproduction%2Fimages%2Fvwn%2F030%2F145%2Fimages%2F7a0d84d3b718c9a621100e43e581278433114c82%2FDB2019AL01950_web_1600.jpg%3F1649155356&imgrefurl=https%3A%2F%2Fwww.volkswagen-newsroom.com%2Fen%2Fimages%2Fdetail%2Fvolkswagen-logo-30145&docid=8XvCtqyvzBBScM&tbnid=npTqYGfmOHYqZM&vet=12ahUKEwiG_LzSsb-JAxV0hGMGHYsLF8sQM3oECD8QAA..i&w=1600&h=1600&hcb=2&ved=2ahUKEwiG_LzSsb-JAxV0hGMGHYsLF8sQM3oECD8QAA');
-}
+
 </style>

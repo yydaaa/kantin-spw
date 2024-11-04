@@ -1,129 +1,77 @@
 <template>
-   
-  </template>
-  
-  <script setup>
-  definePageMeta({
-    layout: 'dashboard',
-    middleware: 'auth'
-  })
-  
-  const supabase = useSupabaseClient()
-  
-  const searchQuery = ref('')
-  
-  const { data: teachers, status, error, refresh } = await useAsyncData('teachers', async () => {
-    try {
-      const { data, error } = await supabase.from('guru').select('id, nama').order('id')
-      if (error) throw error
-      return data
-    } catch (error) {
-      console.error(error)
-      return
-    }
-  })
-  
-  const editModal = ref(false)
-  const selectedId = ref(null)
-  
-  const state = reactive({
-    nama: ''
-  })
-  
-  const selectedItem = computed(() => {
-    return teachers.value.find(teacher => teacher.id === selectedId.value)
-  })
-  
-  const closeModal = () => {
-    selectedId.value = null
-    state.nama = ''
-  }
-  
-  const openEditModal = (teacherId) => {
-    selectedId.value = teacherId
-    if (selectedItem.value) {
-      state.nama = selectedItem.value.nama
-    }
-    editModal.value = true
-  }
-  const closeEditModal = () => {
-    closeModal()
-    editModal.value = false
-  }
-  
-  const validate = (state) => {
-    const errors = []
-    if (!state.nama) errors.push({ path: 'nama', message: 'Required' })
-    return errors
-  }
-  
-  const editLoading = ref(false)
-  const editGuru = async (teacherId) => {
-    try {
-      editLoading.value = true
-      const { error } = await supabase.from('guru').update({
-        nama: state.nama,
-      }).eq('id', teacherId)
-      if (error) throw error
-      closeEditModal()
-      refresh()
-    } catch (error) {
-      console.error(error)
-    } finally {
-      editLoading.value = false
-    }
-  }
-  
-  const deleteModal = ref(false)
-  
-  const openDeleteModal = (teacherId) => {
-    selectedId.value = teacherId
-    deleteModal.value = true
-  }
-  const closeDeleteModal = () => {
-    closeModal()
-    deleteModal.value = false
-  }
-  
-  const deleteLoading = ref(false)
-  const deleteGuru = async (teacherId) => {
-    try {
-      deleteLoading.value = true
-      const { error } = await supabase.from('guru').delete().eq('id', teacherId)
-      if (error) throw error
-      closeDeleteModal()
-      refresh()
-    } catch (error) {
-      console.error(error)
-    } finally {
-      deleteLoading.value = false
-    }
-  }
-  
-  const columns = [
-    {
-      key: 'nama',
-      label: 'Nama'
-    }, {
-      key: 'actions',
-      class: 'w-20'
-    }
-  ]
-  
-  const page = ref(1)
-  const pageCount = 8
-  
-  const filteredRows = computed(() => {
-    if (!searchQuery.value) {
-      return teachers.value.slice((page.value - 1) * pageCount, (page.value) * pageCount)
-    }
-  
-    const filtered = teachers.value.filter((teacher) => {
-      return teacher.nama.toLowerCase().includes(searchQuery.value.toLowerCase().trim())
-    })
-  
-    return filtered.slice((page.value - 1) * pageCount, (page.value) * pageCount)
-  })
-  </script>
-  
-  <style scoped></style>
+  <div class="flex  mb-10">
+     <UButton class="ml-6" icon="i-line-md-chevron-left-circle-twotone" size="xl"  color="green" variant="ghost"
+            @click="goBack" />
+</div>
+  <div class="flex gap-12 mb-10 flex justify-center">
+    <UCard class="w-1/2">
+      <template>
+        <div class="font-semibold text-center ">JADWAL GURU</div>
+      </template>
+    </UCard>
+
+  </div>
+  <div class="flex justify-between gap-8 w-full text-center">
+    <UCard v-for="schedule in schedules" :key="schedule.id" class="w-1/2">
+
+      <template #header>
+        <div class="font-semibold">{{ schedule.hari }}</div>
+      </template>
+
+      <div v-for="teacher in teachers" :key="teacher.id">{{ teacher.nama }}</div>
+    </UCard>
+  </div>
+</template>
+
+<script setup>
+import { _xl } from '#tailwind-config/theme/typography';
+import { useRouter } from 'vue-router'
+import Dashboard from '~/layouts/dashboard.vue';
+
+const router = useRouter()
+
+function goBack() {
+  router.back()
+}
+
+definePageMeta({
+  middleware: 'auth',
+  layout: 'dashboard',
+})
+
+const supabase = useSupabaseClient()
+const user = useSupabaseUser()
+
+
+const { data: userData } = await useAsyncData('userData', async () => {
+  const { data, error } = await supabase.from('users').select('nama, role').eq('id', user.value.id).maybeSingle()
+  if (error) throw error
+  return data
+})
+
+
+const { data: teachers } = await useAsyncData('teachers', async () => {
+  const { data, error } = await supabase.from('guru').select('id, nama').order('id')
+  if (error) throw error
+  return data
+})
+
+
+const { data: schedules } = await useLazyAsyncData('schedules', async () => {
+  const { data, error } = await supabase.from('jadwal').select('id, hari').range(0, 3).order('id')
+  if (error) throw error
+  return data
+})
+
+const selectedId = ref(null)
+
+const state = reactive({
+  nama: '',
+  kelas: null,
+  guru: null,
+})
+</script>
+
+<style scoped>
+
+</style>
